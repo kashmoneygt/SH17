@@ -13,11 +13,14 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
+import org.opencv.core.Core;
+import org.opencv.imgproc.Imgproc;
+
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private static String TAG = "MainActivity";
     JavaCameraView javaCameraView;
-    Mat mRGBa;
+    Mat mRGBa, imgGray, imgCanny;
     BaseLoaderCallback mLoaderCallBack = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -79,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRGBa = new Mat(height, width, CvType.CV_8UC4);
+        imgGray = new Mat(height, width, CvType.CV_8UC4);
+        imgCanny = new Mat(height, width, CvType.CV_8UC4);
+
     }
 
     @Override
@@ -88,7 +94,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        //Imgproc.cvtColor(mRGBa, imgGray, Imgproc.COLOR_BayerBG2GRAY);
+        //Imgproc.Canny(imgGray, imgCanny, 50,150);
         mRGBa = inputFrame.rgba();
-        return mRGBa;
+        Mat mRgbaT = mRGBa.t();
+        Core.flip(mRGBa.t(), mRgbaT, 1);
+        Imgproc.resize(mRgbaT, mRgbaT, mRGBa.size());
+        return mRgbaT;
     }
 }
